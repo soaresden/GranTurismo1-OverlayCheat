@@ -6,12 +6,17 @@ GranTurismo2-OverlayCheat (`romhacking/FICHE_ROMHACKING.md`) : deux envois sépa
 
 ## Fichiers à envoyer
 
-- **Patch** : `GT1-OverlayCheat-v1.1.zip` (PPF + xdelta + README.txt + LISEZMOI.txt)
-- **Captures** (PNG, résolution d'origine du jeu), dans cet ordre :
+- **Patch** : `GT1-OverlayCheat-v1.1.zip` (https://raw.githubusercontent.com/soaresden/GranTurismo1-OverlayCheat/main/romhacking/GT1-OverlayCheat-v1.1.zip) (PPF + xdelta + README.txt + LISEZMOI.txt)
+- **Captures** (PNG, résolution d'origine du jeu), dans cet ordre ; romhacking.net les prend
+  par URL, les adresses directes sur GitHub sont sous chaque ligne :
   1. `screenshots/0_menu_city_map.png` — le menu sur la carte du mode GT (640 × 480)
+     https://raw.githubusercontent.com/soaresden/GranTurismo1-OverlayCheat/main/romhacking/screenshots/0_menu_city_map.png
   2. `screenshots/1_menu_licence_list.png` — le menu sur la liste des permis B (640 × 480)
+     https://raw.githubusercontent.com/soaresden/GranTurismo1-OverlayCheat/main/romhacking/screenshots/1_menu_licence_list.png
   3. `screenshots/2_menu_licence_test.png` — le menu pendant le permis B-1 (320 × 240)
+     https://raw.githubusercontent.com/soaresden/GranTurismo1-OverlayCheat/main/romhacking/screenshots/2_menu_licence_test.png
   4. `screenshots/3_licence_timer_frozen.png` — le chrono figé à 0:00.040 en permis (320 × 240)
+     https://raw.githubusercontent.com/soaresden/GranTurismo1-OverlayCheat/main/romhacking/screenshots/3_licence_timer_frozen.png
 
 ## Champs du formulaire
 
