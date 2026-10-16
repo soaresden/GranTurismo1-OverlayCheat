@@ -1,0 +1,65 @@
+Gran Turismo (PS1, PAL) - Menu de triche en surimpression v1.1
+==============================================================
+par soaresden - https://github.com/soaresden/GranTurismo1-OverlayCheat
+
+Maintenir SELECT (ou appuyer L1 + R1 + L2 + R2 ensemble) : un petit menu apparaît par-dessus le
+jeu :
+
+  FREEZE TIMER   arrête le chronomètre des permis
+  MONEY          change les crédits en direct (pas réglable, maximum, zéro)
+
+Commandes (manette 1)
+---------------------
+Deux façons d'ouvrir le menu « GT1 CHEAT » :
+  - SELECT maintenu : le menu apparaît après un court instant et disparaît quand on relâche ;
+  - L1 + R1 + L2 + R2 ensemble : le menu s'ouvre et reste ouvert ; START (ou les quatre
+    gâchettes à nouveau) le referme. À utiliser dans RetroArch / Batocera, où SELECT est souvent
+    la touche « hotkey ».
+Tant que le menu est ouvert, le jeu ne reçoit plus la manette.
+
+  Haut / Bas                    choisir la ligne
+  Ligne FREEZE TIMER :
+    Gauche / Droite / Croix / Rond   ON / OFF
+  Ligne MONEY :
+    Droite / Gauche             + / - le pas (maintenu : répétition)
+    R1 / L1                     pas x10 / pas ÷10 (de 1 à 10 000 000)
+    Triangle                    99 999 999 (le maximum du jeu)
+    Carré                       0
+
+- FREEZE TIMER ON : dans un permis, le chrono s'arrête là où il est. S'il était déjà ON au
+  départ, il s'arrête à 0:00.040, juste après le départ (un permis dont le chrono reste à 0 ne
+  se termine jamais). Arrêtez-vous dans la zone : l'or est à vous. Le choix est gardé jusqu'à
+  l'extinction. N'agit que dans les permis, pas en course.
+- Un appui bref sur SELECT (sans autre touche) est rendu au jeu quand on le relâche.
+- Le menu existe une fois le mode Gran Turismo ouvert au moins une fois depuis l'allumage (la
+  2e moitié du code de la triche arrive avec lui) : pas sur l'écran titre ni dans les menus du
+  mode Arcade ; les courses Arcade l'ont après un passage par le mode GT.
+
+Appliquer le patch
+------------------
+Sur l'image du disque (SCES-00984), avec l'un des deux :
+  Gran Turismo (Europe) [Overlay Cheat].ppf     (PPF 3.0, octets modifiés seulement)
+  Gran Turismo (Europe) [Overlay Cheat].xdelta  (xdelta3, image d'origine seulement)
+
+Image d'origine : un .bin d'une piste, MODE2/2352 :
+  Gran Turismo (Europe) (En,Fr,De,Es,It).bin
+  Taille 691 652 640 octets
+  CRC32  DBA21C42
+  SHA-1  1da2e8b50b6f506335b73d84223db2277f843e3f
+Image patchée :
+  CRC32  A871244C
+  SHA-1  9192f566ae6916e89ba96d5415999b0a4c3046b8
+
+Le PPF ne touche que 4 secteurs des trois exécutables (GTOS.EXE, GTMENU.EXE, GTMAIN.EXE) : il
+s'applique donc aussi à un disque déjà modifié dans d'autres fichiers.
+
+Pour un .chd ou un .cue, l'outil Python du projet (patch_disc.py, Python 3, rien à installer)
+vérifie chaque exécutable (SHA-1) avant de le modifier :
+  python patch_disc.py "Gran Turismo.chd"
+
+Essayé dans PCSX-Redux (BIOS SCPH-5502) : menu sur la carte, la liste des permis et pendant
+les permis ; crédits mis à jour à l'écran ; permis B-1 réussi avec le chrono figé (« YOU WIN
+GOLD », 0:00.059) ; L1 + R1 + L2 + R2 garde le menu ouvert, START le referme.
+
+Gran Turismo est une marque de Sony Interactive Entertainment. Projet de fan, sans lien avec Sony
+ni Polyphony Digital. Licence : GPL-3.0.
