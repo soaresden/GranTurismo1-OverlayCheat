@@ -34,9 +34,14 @@ faite avec le jeu non modifié : elle ne contient pas la triche).
 
 Commandes (manette 1)
 ---------------------
-Maintenir SELECT : le petit menu « GT1 CHEAT » apparaît en haut de l'écran, après
-un court instant. Tant que SELECT est maintenu, le jeu ne reçoit plus la manette
-(en course, la voiture continue sur sa lancée).
+Deux façons d'ouvrir le petit menu « GT1 CHEAT », en haut de l'écran :
+  - maintenir SELECT : le menu apparaît après un court instant et disparaît
+    quand on relâche ;
+  - appuyer L1 + R1 + L2 + R2 ensemble : le menu s'ouvre et reste ouvert ;
+    START (ou les quatre gâchettes à nouveau) le referme. À utiliser dans
+    RetroArch / Batocera, où SELECT est souvent la touche « hotkey ».
+Tant que le menu est ouvert, le jeu ne reçoit plus la manette (en course, la
+voiture continue sur sa lancée).
 
   Haut / Bas                choisir la ligne
 
@@ -52,13 +57,13 @@ un court instant. Tant que SELECT est maintenu, le jeu ne reçoit plus la manett
     Triangle                  99 999 999 (le maximum du jeu)
     Carré                     0
 
-Relâcher SELECT : le menu disparaît. Un appui bref sur SELECT (sans autre touche)
-est rendu au jeu quand on le relâche.
+Un appui bref sur SELECT (sans autre touche) est rendu au jeu quand on le relâche.
 
 Le choix FREEZE TIMER est gardé d'un écran à l'autre (jusqu'à l'extinction).
 Le menu marche dans les menus du jeu (carte, garage, concessionnaires…) et en
-course / en permis. Il n'apparaît qu'une fois les menus du jeu chargés (pas dans
-la démo du début, ni sur l'écran titre).
+course / en permis. Il n'apparaît qu'une fois le mode Gran Turismo ouvert au
+moins une fois depuis l'allumage (pas dans la démo du début, ni sur l'écran
+titre, ni dans les menus du mode Arcade ; les courses Arcade l'ont ensuite).
 
 Essayé dans PCSX-Redux (BIOS SCPH-5502) : menu sur la carte et en permis, argent
 mis à jour à l'écran, permis B-1 avec FREEZE TIMER ON : « YOU WIN GOLD », 0:00.059.
@@ -74,7 +79,9 @@ mis à jour à l'écran, permis B-1 avec FREEZE TIMER ON : « YOU WIN GOLD », 0
 4. Revenir aux menus après le permis : SELECT doit toujours ouvrir le menu, et
    FREEZE TIMER doit être resté ON.
 5. Changer l'argent pendant un permis (menu SELECT), sortir : vérifier l'argent.
-6. Sauvegarder sur la carte mémoire, éteindre, recharger : rien d'anormal.
+6. L1 + R1 + L2 + R2 sur la carte : le menu reste ouvert sans rien tenir ;
+   START le referme.
+7. Sauvegarder sur la carte mémoire, éteindre, recharger : rien d'anormal.
 """
 
 

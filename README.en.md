@@ -3,7 +3,8 @@
 🇫🇷 [Version française](README.md)
 
 A patch for **Gran Turismo** (PlayStation, European version **SCES-00984**): hold **SELECT**
-and a small menu shows up over the game, with two options:
+(or press **L1 + R1 + L2 + R2** together) and a small menu shows up over the game, with two
+options:
 
 1. **FREEZE TIMER** — stops the clock of the **licence tests**;
 2. **MONEY** — changes the credits **live** (adjustable step, maximum, zero).
@@ -14,8 +15,15 @@ no game data: it works on the original disc **and** on a disc already modded in 
 
 ## Controls (pad 1)
 
-Hold **SELECT**: the `GT1 CHEAT` menu appears at the top of the screen after a short moment.
-While SELECT is held, the game gets no input from the pad.
+Two ways to open the `GT1 CHEAT` menu, at the top of the screen:
+
+- **hold SELECT**: the menu appears after a short moment and goes away on release;
+- **press L1 + R1 + L2 + R2 together**: the menu opens and **stays open**; **START** (or the four
+  shoulder buttons again) closes it. Use this one in **Batocera / RetroArch**, where SELECT is
+  the hotkey button: while it is held the game receives nothing, and SELECT + a button triggers
+  the emulator's shortcuts.
+
+While the menu is open, the game gets no input from the pad.
 
 | Button | FREEZE TIMER line | MONEY line |
 |---|---|---|
@@ -34,6 +42,8 @@ While SELECT is held, the game gets no input from the pad.
 
 Tried in PCSX-Redux with the PAL BIOS SCPH-5502: menu on the city map and in a licence,
 money updated on screen, licence B-1 passed with the clock stopped (*YOU WIN GOLD*, 0:00.059).
+L1 + R1 + L2 + R2 on the city map: the menu stays open, △ gives 99,999,999, START closes it,
+SELECT still works.
 
 ## Applying the patch
 
@@ -59,7 +69,7 @@ it is changed.
 
 Expected original `.bin` (one MODE2/2352 track, 691,652,640 bytes, as `patch_disc.py` /
 chdman write it from the CHD): SHA-1 `1da2e8b50b6f506335b73d84223db2277f843e3f`.
-Result: SHA-1 `9cbbb27b8cd21aba9749a19c179833d5f7310dd9` (build AC073E03).
+Result: SHA-1 `9192f566ae6916e89ba96d5415999b0a4c3046b8` (build 1FE1CB19).
 
 ## How it works
 
@@ -76,7 +86,7 @@ The patch changes two words of that header and nothing else of the game's code:
 The game's packed code is left as it is. Once the game is unpacked, the stub:
 
 1. copies its piece of the **resident block** to 0x8000F000 (low RAM, free: the BIOS kernel
-   heap ends near 0x8000E500). The block (≈ 2.6 KB) does not fit in a single file: the first
+   heap ends near 0x8000E500). The block (≈ 2.7 KB) does not fit in a single file: the first
    piece comes from `GTOS.EXE` (run at start-up, before the menus), the second from
    `GTMENU.EXE`;
 2. checks that the block is complete (magic word + CRC of the build at its start, another
@@ -104,7 +114,7 @@ Useful addresses found (static analysis, checked in PCSX-Redux):
 | 0x80093BC8 (GTMAIN) | race clock (ms): +40 per frame at 25 fps (+20 at 50) |
 | 0x800CB645 (GTMAIN) | game mode, 4 = licence test (table 0x8008BC68, case 0x80027E80 → "license result menu") |
 | 0x800C4A94 (GTMAIN), 0x8009B874 (GTMENU) | credits (u32), "GTos" status block + 0x44, passed between executables through SPU RAM |
-| 0x8000F000…0x8000FA1F | resident block (the cheat's code) |
+| 0x8000F000…0x8000FA8B | resident block (the cheat's code) |
 | 0x8000FF80 | cheat state (FREEZE TIMER, line, step…), kept across executables |
 
 Drawing: TILE primitives sent straight to the GPU (GP0) after `DrawSync`, the project's 5×7
@@ -115,12 +125,15 @@ game's own pad code (0x8007A7D0).
 ## Known limits
 
 - Pad 1 only (with a multitap: its port A).
-- While SELECT is held, the game does not see the pad.
+- While the menu is open, the game does not see the pad.
+- The menu only exists once the **Gran Turismo mode** has been opened at least once since
+  power on: the second piece of the code comes from `GTMENU.EXE`. The title screen and the
+  Arcade mode menus have no menu; Arcade races have it, after a visit to GT mode.
 - Menus in 640×480 interlaced: the game redraws the whole screen every frame and the menu is
   drawn after it; on an emulator that outputs line by line (Beetle) or on a console, a slight
   flicker is possible.
 - While the menu is shown, the CPU waits for each frame to be drawn (the game may slow down a
-  little, only while SELECT is held).
+  little, only while the menu is shown).
 - FREEZE TIMER only acts in licence tests (mode 4), not in races.
 
 ## Building from source

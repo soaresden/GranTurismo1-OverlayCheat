@@ -6,7 +6,8 @@
  * Each executable's stub calls cheat_boot(exe), which redirects three `jal` of the game:
  *
  *   pad_hook   the game's copy of the pad buffers (once per game frame): reads port 1,
- *              runs the menu while SELECT is held and hides the pad from the game meanwhile;
+ *              runs the menu while SELECT is held (or once opened with L1 + R1 + L2 + R2,
+ *              until START) and hides the pad from the game meanwhile;
  *   draw_hook  the game's DrawOTag of the frame: once the GPU has drawn the frame (DrawSync),
  *              draws the menu over it with GP0 writes (TILE primitives, 5x7 font from font.py);
  *   tick_hook  (GTMAIN only) the race clock tick (+20/+40 ms per frame): skipped in a
@@ -31,16 +32,20 @@ typedef unsigned int u32;
 
 /* pad bits once inverted (1 = pressed), as in the game's pad code */
 #define B_SELECT 0x0001
+#define B_START 0x0008
 #define B_UP 0x0010
 #define B_RIGHT 0x0020
 #define B_DOWN 0x0040
 #define B_LEFT 0x0080
+#define B_L2 0x0100
+#define B_R2 0x0200
 #define B_L1 0x0400
 #define B_R1 0x0800
 #define B_TRIANGLE 0x1000
 #define B_CIRCLE 0x2000
 #define B_CROSS 0x4000
 #define B_SQUARE 0x8000
+#define B_SHOULDERS (B_L1 | B_R1 | B_L2 | B_R2)
 
 struct exe {
     u32 memcpy, drawsync, drawotag, tick, clock, money, mode;   /* game addresses (gt1cheat/exes.py) */
@@ -61,6 +66,7 @@ struct g {
     u8 rep;                                      /*   auto-repeat of LEFT / RIGHT */
     u8 vis;                                      /*   menu shown */
     u8 shx, shy;                                 /*   font pixel = 1 << shx by 1 << shy */
+    u8 open;                                     /*   opened with L1 + R1 + L2 + R2 (stays) */
 };
 /* the base address in a register that GCC cannot rebuild (it would redo lui/ori each time) */
 static inline struct g *G_(void)
@@ -102,7 +108,7 @@ void cheat_boot(int exe)
         w[i] = r[i];
     g->exe = exe;
     g->prev = 0;
-    g->hold = g->used = g->tap = g->rep = g->vis = 0;
+    g->hold = g->used = g->tap = g->rep = g->vis = g->open = 0;
     for (i = 0; i < 3; i++)
         if (e->site[i])
             *(u32 *)e->site[i] = 0x0C000000 | (((u32)fn[i] >> 2) & 0x03FFFFFF);
@@ -167,12 +173,30 @@ void pad_hook(u8 *dst, const u8 *src, int n)
     if ((p[1] & 0xF0) == 0x80)                    /* multitap: its slot A */
         p += 2;
     if (p[0]) {                                   /* no pad on port 1 */
-        g->hold = g->vis = 0;
+        g->hold = g->vis = g->open = 0;
         return;
     }
     b = ~(p[2] | p[3] << 8) & 0xFFFF;
     pr = b & ~g->prev;
     g->prev = b;
+    /* L1 + R1 + L2 + R2 together: the menu opens and stays (for emulators where SELECT is the
+       hotkey button, RetroArch / Batocera: while it is held, the game gets no input); START or
+       the same buttons again close it */
+    if ((b & B_SHOULDERS) == B_SHOULDERS && (pr & B_SHOULDERS)) {
+        g->open ^= 1;
+        g->vis = g->open;
+        p[2] = p[3] = 0xFF;
+        return;
+    }
+    if (g->open) {
+        /* the shoulders that opened it are still held, not new presses: no step change */
+        if (pr & B_START)
+            g->open = g->vis = 0;
+        else
+            menu(g, b, pr);
+        p[2] = p[3] = 0xFF;                       /* the game sees no button */
+        return;
+    }
     if (b & B_SELECT) {
         if (g->hold < 255)
             g->hold++;

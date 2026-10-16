@@ -1,6 +1,6 @@
 """Start PCSX-Redux on a disc with drive.lua (polls out/cmd.txt), for tests driven by cmd.py.
 
-    python tools/emu/launch.py "TEST_CHEAT/Gran Turismo [Cheat].cue" [--sony] [--interp]
+    python tools/emu/launch.py "TEST_CHEAT/Gran Turismo [Cheat].cue" [--sony] [--interp] [--debugger]
     python tools/emu/cmd.py $'hold SELECT 60\nwait 30\nshot menu\nr32 0x8009b874'
 
 PCSX_REDUX: path of pcsx-redux(.exe) (else the Resident Evil 1 Hotkey project's copy);
@@ -29,6 +29,8 @@ env = dict(os.environ, HARNESS_SCRIPT=os.path.join(HERE, 'drive.lua'), HARNESS_O
 args = [EMU, '-cli', '-stdout', '-run', '-iso', os.path.abspath(sys.argv[1]), '-dofile', os.path.join(HERE, 'harness.lua')]
 if '--interp' in sys.argv:
     args.insert(3, '-interpreter')
+if '--debugger' in sys.argv:
+    args.insert(3, '-debugger')
 if '--sony' in sys.argv:
     args += ['-bios', BIOS]
 with open(os.path.join(out, 'emu.log'), 'w') as log:

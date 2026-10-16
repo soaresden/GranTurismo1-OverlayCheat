@@ -3,7 +3,8 @@
 🇬🇧 [English version](README.en.md)
 
 Un patch pour **Gran Turismo** (PlayStation, version européenne **SCES-00984**) : en
-maintenant **SELECT**, un petit menu apparaît par-dessus le jeu, avec deux options :
+maintenant **SELECT** (ou en appuyant **L1 + R1 + L2 + R2** ensemble), un petit menu apparaît
+par-dessus le jeu, avec deux options :
 
 1. **FREEZE TIMER** — arrête le chronomètre des **permis** (licences) ;
 2. **MONEY** — change les crédits **en direct** (pas réglable, maximum, zéro).
@@ -14,8 +15,15 @@ modifié ailleurs (par exemple le mod MX-5 du même auteur, qui ne change pas ce
 
 ## Commandes (manette 1)
 
-Maintenir **SELECT** : le menu `GT1 CHEAT` apparaît en haut de l'écran après un court instant.
-Tant que SELECT est maintenu, le jeu ne reçoit plus la manette.
+Deux façons d'ouvrir le menu `GT1 CHEAT`, en haut de l'écran :
+
+- **maintenir SELECT** : le menu apparaît après un court instant et disparaît quand on relâche ;
+- **appuyer L1 + R1 + L2 + R2 ensemble** : le menu s'ouvre et **reste ouvert** ; **START** (ou
+  les quatre gâchettes à nouveau) le referme. À utiliser dans **Batocera / RetroArch**, où
+  SELECT est la touche « hotkey » : tant qu'elle est maintenue, le jeu ne reçoit rien, et
+  SELECT + une touche déclenche les raccourcis de l'émulateur.
+
+Tant que le menu est ouvert, le jeu ne reçoit plus la manette.
 
 | Touche | Ligne FREEZE TIMER | Ligne MONEY |
 |---|---|---|
@@ -34,7 +42,8 @@ Tant que SELECT est maintenu, le jeu ne reçoit plus la manette.
 
 Essayé dans PCSX-Redux avec le BIOS PAL SCPH-5502 : menu sur la carte de la ville et en
 permis, argent mis à jour à l'écran, permis B-1 réussi avec le chrono arrêté (*YOU WIN GOLD*,
-0:00.059).
+0:00.059). Combinaison L1 + R1 + L2 + R2 sur la carte de la ville : le menu reste ouvert, △ met
+99 999 999, START le referme, SELECT marche toujours.
 
 ## Appliquer le patch
 
@@ -60,7 +69,7 @@ avant d'être modifié.
 
 `.bin` d'origine attendu (une piste MODE2/2352, 691 652 640 octets, tel que l'écrit
 `patch_disc.py` / chdman depuis le CHD) : SHA-1 `1da2e8b50b6f506335b73d84223db2277f843e3f`.
-Résultat : SHA-1 `9cbbb27b8cd21aba9749a19c179833d5f7310dd9` (build AC073E03).
+Résultat : SHA-1 `9192f566ae6916e89ba96d5415999b0a4c3046b8` (build 1FE1CB19).
 
 ## Comment ça marche
 
@@ -77,7 +86,7 @@ Le patch modifie deux mots de cet en-tête et rien d'autre du code du jeu :
 Le code compressé du jeu reste tel quel. Le stub, une fois le jeu décompressé :
 
 1. recopie son morceau du **bloc résident** à 0x8000F000 (mémoire basse, libre : le tas du
-   noyau du BIOS s'arrête vers 0x8000E500). Le bloc (≈ 2,6 Ko) ne tient pas dans un seul
+   noyau du BIOS s'arrête vers 0x8000E500). Le bloc (≈ 2,7 Ko) ne tient pas dans un seul
    fichier : le 1er morceau vient de `GTOS.EXE` (lancé au démarrage, avant les menus), le 2e de
    `GTMENU.EXE` ;
 2. vérifie que le bloc est complet (mot magique + CRC de la version au début, autre mot
@@ -105,7 +114,7 @@ Adresses utiles trouvées (analyse statique, vérifiées dans PCSX-Redux) :
 | 0x80093BC8 (GTMAIN) | horloge de course (ms) : +40 par image à 25 images/s (+20 à 50) |
 | 0x800CB645 (GTMAIN) | mode de jeu, 4 = permis (table 0x8008BC68, cas 0x80027E80 → « license result menu ») |
 | 0x800C4A94 (GTMAIN), 0x8009B874 (GTMENU) | crédits (u32), bloc d'état « GTos » + 0x44, transmis entre exécutables par la RAM du SPU |
-| 0x8000F000…0x8000FA1F | bloc résident (le code de la triche) |
+| 0x8000F000…0x8000FA8B | bloc résident (le code de la triche) |
 | 0x8000FF80 | état de la triche (FREEZE TIMER, ligne, pas…), gardé entre les exécutables |
 
 Dessin : primitives TILE envoyées directement au GPU (GP0) après `DrawSync`, police 5×7 du
@@ -116,12 +125,15 @@ brutes), comme le code de lecture du jeu (0x8007A7D0).
 ## Limites connues
 
 - Manette 1 seulement (avec multitap : sa prise A).
-- Pendant que SELECT est maintenu, le jeu ne voit plus la manette.
+- Pendant que le menu est ouvert, le jeu ne voit plus la manette.
+- Le menu n'existe qu'une fois le **mode Gran Turismo** ouvert au moins une fois depuis
+  l'allumage : le 2e morceau du code vient de `GTMENU.EXE`. L'écran titre et les menus du mode
+  Arcade n'ont pas le menu ; les courses Arcade l'ont, après un passage par le mode GT.
 - Menus en 640×480 entrelacé : le jeu redessine tout l'écran à chaque image et le menu est
   dessiné après ; sur un émulateur qui affiche ligne par ligne (Beetle) ou sur console, un
   léger scintillement est possible.
 - Pendant que le menu est affiché, le processeur attend la fin du dessin de chaque image (le
-  jeu peut ralentir un peu, seulement tant que SELECT est maintenu).
+  jeu peut ralentir un peu, seulement tant que le menu est affiché).
 - FREEZE TIMER n'agit que dans les permis (mode 4), pas en course.
 
 ## Construire depuis les sources
