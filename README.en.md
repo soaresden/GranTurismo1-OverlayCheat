@@ -5,6 +5,11 @@
 **▶ [Add the cheat to your disc, in your browser](https://soaresden.github.io/GranTurismo1-OverlayCheat/)**: choose your `.chd` or `.bin`, the
 page gives you back the disc image with the cheat menu (nothing is sent over the internet).
 
+On the page, three switches: **in-game menu** (SELECT or L1 + R1 + L2 + R2), **licence timer
+frozen** from power-on and **money at the maximum** all the time; the last two work by themselves,
+without the menu. On the command line: `python patch_disc.py "Gran Turismo.chd" --freeze --money` (and
+`--no-menu` to leave the menu out).
+
 A patch for **Gran Turismo** (PlayStation, European version **SCES-00984**): hold **SELECT**
 (or press **L1 + R1 + L2 + R2** together) and a small menu shows up over the game, with two
 options:
@@ -72,7 +77,7 @@ it is changed.
 
 Expected original `.bin` (one MODE2/2352 track, 691,652,640 bytes, as `patch_disc.py` /
 chdman write it from the CHD): SHA-1 `1da2e8b50b6f506335b73d84223db2277f843e3f`.
-Result: SHA-1 `9192f566ae6916e89ba96d5415999b0a4c3046b8` (build 1FE1CB19).
+Result: SHA-1 `f8f7d4f949f7380ebc1717722ce788a5abb0e214` (build 1B76F7F3).
 
 ## How it works
 
@@ -117,7 +122,7 @@ Useful addresses found (static analysis, checked in PCSX-Redux):
 | 0x80093BC8 (GTMAIN) | race clock (ms): +40 per frame at 25 fps (+20 at 50) |
 | 0x800CB645 (GTMAIN) | game mode, 4 = licence test (table 0x8008BC68, case 0x80027E80 → "license result menu") |
 | 0x800C4A94 (GTMAIN), 0x8009B874 (GTMENU) | credits (u32), "GTos" status block + 0x44, passed between executables through SPU RAM |
-| 0x8000F000…0x8000FA8B | resident block (the cheat's code) |
+| 0x8000F000…0x8000FAD7 | resident block (the cheat's code) |
 | 0x8000FF80 | cheat state (FREEZE TIMER, line, step…), kept across executables |
 
 Drawing: TILE primitives sent straight to the GPU (GP0) after `DrawSync`, the project's 5×7

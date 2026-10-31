@@ -5,6 +5,11 @@
 **▶ [Ajouter la triche à ton disque, dans ton navigateur](https://soaresden.github.io/GranTurismo1-OverlayCheat/)** : choisis ton `.chd` ou ton `.bin`,
 la page te rend l'image disque avec le menu de triche (rien n'est envoyé sur internet).
 
+Sur la page, trois interrupteurs : **menu en jeu** (SELECT ou L1 + R1 + L2 + R2), **chrono des
+permis figé** dès l'allumage et **argent au maximum** en permanence ; les deux derniers marchent
+tout seuls, sans le menu. En ligne de commande : `python patch_disc.py "Gran Turismo.chd" --freeze --money`
+(et `--no-menu` pour retirer le menu).
+
 Un patch pour **Gran Turismo** (PlayStation, version européenne **SCES-00984**) : en
 maintenant **SELECT** (ou en appuyant **L1 + R1 + L2 + R2** ensemble), un petit menu apparaît
 par-dessus le jeu, avec deux options :
@@ -72,7 +77,7 @@ avant d'être modifié.
 
 `.bin` d'origine attendu (une piste MODE2/2352, 691 652 640 octets, tel que l'écrit
 `patch_disc.py` / chdman depuis le CHD) : SHA-1 `1da2e8b50b6f506335b73d84223db2277f843e3f`.
-Résultat : SHA-1 `9192f566ae6916e89ba96d5415999b0a4c3046b8` (build 1FE1CB19).
+Résultat : SHA-1 `f8f7d4f949f7380ebc1717722ce788a5abb0e214` (build 1B76F7F3).
 
 ## Comment ça marche
 
@@ -117,7 +122,7 @@ Adresses utiles trouvées (analyse statique, vérifiées dans PCSX-Redux) :
 | 0x80093BC8 (GTMAIN) | horloge de course (ms) : +40 par image à 25 images/s (+20 à 50) |
 | 0x800CB645 (GTMAIN) | mode de jeu, 4 = permis (table 0x8008BC68, cas 0x80027E80 → « license result menu ») |
 | 0x800C4A94 (GTMAIN), 0x8009B874 (GTMENU) | crédits (u32), bloc d'état « GTos » + 0x44, transmis entre exécutables par la RAM du SPU |
-| 0x8000F000…0x8000FA8B | bloc résident (le code de la triche) |
+| 0x8000F000…0x8000FAD7 | bloc résident (le code de la triche) |
 | 0x8000FF80 | état de la triche (FREEZE TIMER, ligne, pas…), gardé entre les exécutables |
 
 Dessin : primitives TILE envoyées directement au GPU (GP0) après `DrawSync`, police 5×7 du

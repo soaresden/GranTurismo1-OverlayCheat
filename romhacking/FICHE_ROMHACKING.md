@@ -6,7 +6,7 @@ GranTurismo2-OverlayCheat (`romhacking/FICHE_ROMHACKING.md`) : deux envois sépa
 
 ## Fichiers à envoyer
 
-- **Patch** : `GT1-OverlayCheat-v1.1.zip` (https://raw.githubusercontent.com/soaresden/GranTurismo1-OverlayCheat/main/romhacking/GT1-OverlayCheat-v1.1.zip) (PPF + xdelta + README.txt + LISEZMOI.txt)
+- **Patch** : `GT1-OverlayCheat-v1.2.zip` (https://raw.githubusercontent.com/soaresden/GranTurismo1-OverlayCheat/main/romhacking/GT1-OverlayCheat-v1.2.zip) (PPF + xdelta + README.txt + LISEZMOI.txt)
 - **Captures** (PNG, résolution d'origine du jeu), dans cet ordre ; romhacking.net les prend
   par URL, les adresses directes sur GitHub sont sous chaque ligne :
   1. `screenshots/0_menu_city_map.png` — le menu sur la carte du mode GT (640 × 480)
@@ -27,8 +27,8 @@ GranTurismo2-OverlayCheat (`romhacking/FICHE_ROMHACKING.md`) : deux envois sépa
 | Platform | PlayStation |
 | Category | Cheat *(sinon : Improvement)* |
 | Status | Fully Playable |
-| Version | 1.1 |
-| Release date | 2026-10-16 |
+| Version | 1.2 |
+| Release date | 2026-10-31 |
 | Language | English *(le menu ; le jeu reste dans sa langue)* |
 | Author | soaresden |
 | Website | https://github.com/soaresden/GranTurismo1-OverlayCheat |
@@ -72,6 +72,9 @@ their packed header and free bytes after the loader; the game code is not touche
 also applies to a disc already modded in other files. For a .chd or .cue, use the Python tool of
 the project (patch_disc.py).
 
+Options (web page https://soaresden.github.io/GranTurismo1-OverlayCheat/ or patch_disc.py): the in-game menu, the licence timer frozen from
+power-on, money kept at the maximum; the last two work without the menu.
+
 Tested in PCSX-Redux (Sony BIOS). Sources and technical notes on GitHub.
 ```
 
@@ -98,6 +101,9 @@ Le patch ne modifie que les trois exécutables (GTOS.EXE, GTMENU.EXE, GTMAIN.EXE
 leur en-tête compressé et des octets libres après le chargeur ; le code du jeu n'est pas touché),
 donc le PPF s'applique aussi à un disque déjà modifié dans d'autres fichiers. Pour un .chd ou un
 .cue, utilisez l'outil Python du projet (patch_disc.py).
+
+Options (page web https://soaresden.github.io/GranTurismo1-OverlayCheat/ ou patch_disc.py) : le menu en jeu, le chrono des permis figé dès
+l'allumage, l'argent toujours au maximum ; les deux derniers marchent sans le menu.
 
 Essayé dans PCSX-Redux (BIOS Sony). Sources et notes techniques sur GitHub.
 ```

@@ -5,3 +5,4 @@
 _start:
     .word PAYLOAD_MAGIC
     .word PAYLOAD_VERSION
+    .word 0                     /* options (OPTIONS of cheat.c): written by gt1cheat/patcher.py */

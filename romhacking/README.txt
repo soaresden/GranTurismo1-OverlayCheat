@@ -1,4 +1,4 @@
-Gran Turismo (PS1, PAL) - Overlay Cheat Menu v1.1
+Gran Turismo (PS1, PAL) - Overlay Cheat Menu v1.2
 =================================================
 by soaresden - https://github.com/soaresden/GranTurismo1-OverlayCheat
 
@@ -36,6 +36,12 @@ While the menu is open, the game does not receive the pad.
 
 Patching
 --------
+Options (the web page https://soaresden.github.io/GranTurismo1-OverlayCheat/ or patch_disc.py):
+  --freeze    licence timer frozen from power-on
+  --money     money at the maximum (99,999,999) all the time
+  --no-menu   no in-game menu (with --freeze and/or --money)
+The PPF / xdelta patches give the menu alone.
+
 Patch the disc image (SCES-00984) with one of:
   Gran Turismo (Europe) [Overlay Cheat].ppf     (PPF 3.0, changed bytes only)
   Gran Turismo (Europe) [Overlay Cheat].xdelta  (xdelta3, original image only)
@@ -46,8 +52,8 @@ Source image: a single-track .bin, MODE2/2352:
   CRC32  DBA21C42
   SHA-1  1da2e8b50b6f506335b73d84223db2277f843e3f
 Patched image:
-  CRC32  A871244C
-  SHA-1  9192f566ae6916e89ba96d5415999b0a4c3046b8
+  CRC32  BA48AB9C
+  SHA-1  f8f7d4f949f7380ebc1717722ce788a5abb0e214
 
 The PPF only touches 4 sectors of the three executables (GTOS.EXE, GTMENU.EXE, GTMAIN.EXE), so
 it also applies to a disc already modded in other files.

@@ -26,6 +26,12 @@ typedef unsigned short u16;
 typedef unsigned int u32;
 
 #define MAGIC 0x31544743u            /* "CGT1": the state is initialised */
+/* options word of the block (start.S, 0x8000F008), written by the patcher (the page's switches);
+   0: the menu, as before. Byte 0: OPT_NO_MENU | OPT_MONEY; byte 1: FREEZE TIMER on from power on */
+#define OPTIONS (*(volatile u32 *)0x8000F008)
+#define OPT_FREEZE (*(volatile u8 *)0x8000F009)
+#define OPT_NO_MENU 1                    /* no menu (pad_hook stops there: never shown, nothing drawn) */
+#define OPT_MONEY 4                      /* credits kept at the maximum, every frame */
 #define MONEY_MAX 99999999u          /* the game's own limit for prize money (GTMAIN 0x80021608) */
 #define SHOW 8                       /* polls with SELECT held before the menu appears */
 #define TAPLEN 2                     /* polls of SELECT given back to the game after a short tap */
@@ -101,7 +107,8 @@ void cheat_boot(int exe)
             return;
     if (g->magic != MAGIC) {
         g->magic = MAGIC;
-        g->freeze = g->line = 0;
+        g->line = 0;
+        g->freeze = OPT_FREEZE;
         g->step = 3;
     }
     for (i = 0; i < (int)(sizeof(struct exe) / 4); i++)
@@ -167,9 +174,14 @@ void pad_hook(u8 *dst, const u8 *src, int n)
 {
     struct g *g = G;
     u8 *p = dst;
-    u32 b, pr;
+    u32 b, pr, o;
 
     ((void (*)(u8 *, const u8 *, int))g->e.memcpy)(dst, src, n);
+    o = OPTIONS;
+    if (o & OPT_MONEY)
+        *(u32 *)g->e.money = MONEY_MAX;
+    if (o & OPT_NO_MENU)
+        return;
     if ((p[1] & 0xF0) == 0x80)                    /* multitap: its slot A */
         p += 2;
     if (p[0]) {                                   /* no pad on port 1 */

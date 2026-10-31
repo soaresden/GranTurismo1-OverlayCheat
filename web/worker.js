@@ -16,12 +16,15 @@ const OPFS_NAME = 'gt1_cheat.bin';
 // Python run once the disc is open as DISC: FILES = {name on the disc: new bytes}
 const PATCH = `
 from gt1cheat import patcher
+_o = patcher.options_word(**OPTS)
+jslog(T('Triches : ', 'Cheats: ') + ', '.join(t for k, t in (('menu', T('menu en jeu', 'in-game menu')),
+      ('freeze', T('chrono des permis figé', 'licence timer frozen')), ('money', T('argent au maximum', 'money at the maximum'))) if OPTS[k]))
 FILES = {}
 for _n in ('GTOS.EXE', 'GTMENU.EXE', 'GTMAIN.EXE'):
     if _n not in DISC.files:
         raise patcher.PatchError(T("%s absent : ce n'est pas Gran Turismo PAL (SCES-00984)",
                                    "%s missing: this is not Gran Turismo PAL (SCES-00984)") % _n)
-    FILES[_n] = patcher.patch_exe(_n, DISC.read(_n))
+    FILES[_n] = patcher.patch_exe(_n, DISC.read(_n), options=_o)
     jslog(T('  %s : triche ajoutée', '  %s: cheat added') % _n)
 `;
 
@@ -144,11 +147,12 @@ async function openSink(target, size) {
 
 onmessage = async (ev) => {
   await ready;
-  const { disc, target } = ev.data;
+  const { disc, target, options } = ev.data;
   let sink = null;
   try {
     const t0 = Date.now();
     pyodide.globals.set('DISC_FILE', disc);
+    pyodide.globals.set('OPTS', pyodide.toPy(options || { menu: true, freeze: false, money: false }));
     pyodide.globals.set('jslog', (text) => say('log', { text }));
     say('log', { text: T('Lecture du disque…', 'Reading the disc…') });
     await pyodide.runPythonAsync(`

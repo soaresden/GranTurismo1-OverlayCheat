@@ -1,4 +1,4 @@
-Gran Turismo (PS1, PAL) - Menu de triche en surimpression v1.1
+Gran Turismo (PS1, PAL) - Menu de triche en surimpression v1.2
 ==============================================================
 par soaresden - https://github.com/soaresden/GranTurismo1-OverlayCheat
 
@@ -37,6 +37,12 @@ Tant que le menu est ouvert, le jeu ne reçoit plus la manette.
 
 Appliquer le patch
 ------------------
+Options (la page web https://soaresden.github.io/GranTurismo1-OverlayCheat/ ou patch_disc.py) :
+  --freeze    chrono des permis figé dès l'allumage
+  --money     argent au maximum (99 999 999) en permanence
+  --no-menu   sans le menu en jeu (avec --freeze et/ou --money)
+Les patchs PPF / xdelta donnent le menu seul.
+
 Sur l'image du disque (SCES-00984), avec l'un des deux :
   Gran Turismo (Europe) [Overlay Cheat].ppf     (PPF 3.0, octets modifiés seulement)
   Gran Turismo (Europe) [Overlay Cheat].xdelta  (xdelta3, image d'origine seulement)
@@ -47,8 +53,8 @@ Image d'origine : un .bin d'une piste, MODE2/2352 :
   CRC32  DBA21C42
   SHA-1  1da2e8b50b6f506335b73d84223db2277f843e3f
 Image patchée :
-  CRC32  A871244C
-  SHA-1  9192f566ae6916e89ba96d5415999b0a4c3046b8
+  CRC32  BA48AB9C
+  SHA-1  f8f7d4f949f7380ebc1717722ce788a5abb0e214
 
 Le PPF ne touche que 4 secteurs des trois exécutables (GTOS.EXE, GTMENU.EXE, GTMAIN.EXE) : il
 s'applique donc aussi à un disque déjà modifié dans d'autres fichiers.

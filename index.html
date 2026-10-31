@@ -30,6 +30,7 @@
     --stripe: linear-gradient(90deg, #0f2f7a, #1d4fb8 70%, #2a5fcf); --cheat: #6fd3ff;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   html { background: var(--bg); }
   body { margin: 0; color: var(--text); font: 500 17px/1.5 "Barlow Condensed", "Arial Narrow", sans-serif;
          background:
@@ -78,6 +79,21 @@
          background: var(--white); color: #0a1d4f; border: 0; padding: 5px 10px; margin-right: 10px; cursor: pointer; }
   .tip { margin: 10px 0 0; padding: 8px 10px; border-left: 3px solid var(--white); background: rgba(231, 235, 244, .07); font-size: 15px; }
   .tip b { color: var(--white); }
+  .switches { display: grid; gap: 10px; }
+  .switch { display: flex; align-items: center; gap: 14px; cursor: pointer; text-transform: none; letter-spacing: 0;
+            font-weight: 600; margin: 0; padding: 10px 12px; background: #000; border: 1px solid var(--line); }
+  .switch:hover { border-color: #33467a; }
+  .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .switch .knob { flex: none; position: relative; width: 50px; height: 26px; background: #2a3044; border: 1px solid #3a4462;
+                  transition: background .15s; }
+  .switch .knob::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: var(--muted);
+                         transition: transform .15s, background .15s; }
+  .switch input:checked + .knob { background: var(--blue); border-color: var(--blue); }
+  .switch input:checked + .knob::after { transform: translateX(24px); background: #fff; }
+  .switch input:focus-visible + .knob { outline: 2px solid var(--white); outline-offset: 2px; }
+  .switch b { display: block; font-size: 18px; color: var(--text); }
+  .switch .hint { display: block; }
+  .warn { color: var(--err); font-weight: 700; margin: 8px 0 0; }
 
   .go { display: inline-flex; align-items: center; gap: 12px; font: 800 24px/1 "Saira Extra Condensed"; text-transform: uppercase;
         letter-spacing: .08em; color: #0a1d4f; background: var(--white); border: 1px solid var(--white);
@@ -135,7 +151,22 @@
   </section>
 
   <section class="panel">
-    <h2><b>02</b> <span data-en="Add the cheat">Ajouter la triche</span></h2>
+    <h2><b>02</b> <span data-en="Your cheats">Tes triches</span></h2>
+    <div class="body">
+      <div class="switches">
+        <label class="switch"><input type="checkbox" id="opt_menu" checked><span class="knob"></span>
+          <span><b data-en="In-game menu">Menu en jeu</b><span class="hint" data-en="Hold SELECT (or L1 + R1 + L2 + R2): freeze the licence timer and change the credits whenever you want.">Maintenir SELECT (ou L1 + R1 + L2 + R2) : figer le chrono des permis et changer l'argent quand tu veux.</span></span></label>
+        <label class="switch"><input type="checkbox" id="opt_freeze"><span class="knob"></span>
+          <span><b data-en="Licence timer frozen">Chrono des permis figé</b><span class="hint" data-en="On from power-on: in every licence test the clock stops at 0:00.040, nothing to do.">Activé dès l'allumage : dans chaque permis, le chrono s'arrête à 0:00.040, sans rien faire.</span></span></label>
+        <label class="switch"><input type="checkbox" id="opt_money"><span class="knob"></span>
+          <span><b data-en="Money at the maximum">Argent au maximum</b><span class="hint" data-en="Your credits stay at 99,999,999 all the time, even after a purchase.">Tes crédits restent à 99 999 999 en permanence, même après un achat.</span></span></label>
+      </div>
+      <p class="warn" id="optwarn" hidden data-en="Turn on at least one switch.">Active au moins un interrupteur.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2><b>03</b> <span data-en="Build the disc">Fabriquer le disque</span></h2>
     <div class="body">
       <button id="go" class="go" disabled data-en="Loading…">Chargement…</button>
       <p class="hint" style="margin:10px 0 0" data-en="A few minutes: your browser does all the work. The new disc image (~690 MB) is written as it is made: in Chrome and Edge you choose where to save it first; elsewhere it is kept in the site's storage until you download it. Leave the tab open in the meantime. Your own image is not changed.">Quelques minutes : c'est ton navigateur qui fait tout le travail. La nouvelle image disque (~690 Mo) est écrite au fur et à mesure : dans Chrome et Edge tu choisis d'abord où l'enregistrer ; ailleurs elle est gardée dans le stockage du site jusqu'au téléchargement. Laisse l'onglet ouvert pendant ce temps. Ton image d'origine n'est pas modifiée.</p>
@@ -150,11 +181,12 @@
   </section>
 
   <section class="panel">
-    <h2><b>03</b> <span data-en="Play">Jouer</span></h2>
+    <h2><b>04</b> <span data-en="Play">Jouer</span></h2>
     <div class="body">
       <ol>
         <li data-en="Put the &lt;code&gt;.bin&lt;/code&gt; and the &lt;code&gt;.cue&lt;/code&gt; &lt;strong&gt;in the same folder&lt;/strong&gt; and open the &lt;code&gt;.cue&lt;/code&gt; in your emulator (DuckStation, RetroArch, Batocera…).">Mets le <code>.bin</code> et le <code>.cue</code> <strong>dans le même dossier</strong> et ouvre le <code>.cue</code> dans ton émulateur (DuckStation, RetroArch, Batocera…).</li>
         <li data-en="Open the &lt;strong&gt;Gran Turismo&lt;/strong&gt; mode once: the menu is there from then on (map, dealers, races, licences), until you switch off.">Ouvre une fois le mode <strong>Gran Turismo</strong> : le menu est là à partir de ce moment (carte, concessionnaires, courses, permis), jusqu'à l'extinction.</li>
+        <li data-en="The cheats switched on on this page (frozen timer, money at the maximum) work by themselves, from power-on: nothing to press.">Les triches activées sur cette page (chrono figé, argent au maximum) marchent toutes seules, dès l'allumage : rien à appuyer.</li>
         <li data-en="&lt;strong&gt;Hold SELECT&lt;/strong&gt;: the menu appears after a short moment, and goes away on release. &lt;strong&gt;Or L1 + R1 + L2 + R2&lt;/strong&gt; together: it stays open, &lt;strong&gt;START&lt;/strong&gt; closes it (in RetroArch / Batocera, where SELECT is the hotkey button)."><strong>Maintiens SELECT</strong> : le menu apparaît après un court instant, et disparaît quand tu relâches. <strong>Ou L1 + R1 + L2 + R2</strong> ensemble : il reste ouvert, <strong>START</strong> le referme (dans RetroArch / Batocera, où SELECT est la touche « hotkey »).</li>
       </ol>
       <div class="menu"><span class="t">GT1 CHEAT</span><br><span class="s">&gt;FREEZE TIMER ON</span><br>&nbsp;MONEY 99,999,999<br><span class="d">&nbsp;STEP +1,000</span></div>
@@ -201,12 +233,15 @@
   };
   let ready = false, busy = false, target = null, binName = '', binUrl = null, cueUrl = null, t0 = 0;
   const worker = new Worker('web/worker.js?lang=' + SB_LANG);
+  const opts = () => ({ menu: $('opt_menu').checked, freeze: $('opt_freeze').checked, money: $('opt_money').checked });
+  const anyOpt = () => Object.values(opts()).some(Boolean);
   const update = () => {
-    $('go').disabled = busy || !(ready && (TEST || $('disc').files.length));
+    $('optwarn').hidden = anyOpt();
+    $('go').disabled = busy || !(ready && anyOpt() && (TEST || $('disc').files.length));
     $('go').textContent = !ready ? SBT('Chargement de Python…', 'Loading Python…')
-                        : busy ? SBT('En cours…', 'Working…') : SBT('Ajouter la triche', 'Add the cheat');
+                        : busy ? SBT('En cours…', 'Working…') : SBT('Fabriquer le disque', 'Build the disc');
   };
-  $('disc').onchange = update;
+  $('disc').onchange = $('opt_menu').onchange = $('opt_freeze').onchange = $('opt_money').onchange = update;
   const cueText = (name) => `FILE "${name}" BINARY\r\n  TRACK 01 MODE2/2352\r\n    INDEX 01 00:00:00\r\n`;
   const opfsFile = async (name) => (await (await navigator.storage.getDirectory()).getFileHandle(name)).getFile();
   const elapsed = () => Math.round((Date.now() - t0) / 1000);
@@ -262,7 +297,9 @@
 
   $('go').onclick = async () => {
     const src = TEST ? 'Gran Turismo.chd' : $('disc').files[0].name;
-    binName = src.replace(/\.(chd|bin)$/i, '') + ' [Cheat].bin';
+    const o = opts();
+    binName = src.replace(/\.(chd|bin)$/i, '') + ' [' + [o.menu && 'Cheat', o.freeze && 'Freeze', o.money && 'Money']
+      .filter(Boolean).join(' + ') + '].bin';
     target = null;
     // Chrome, Edge: the .bin goes straight to the file chosen now (the click allows the dialog)
     if (window.showSaveFilePicker && !TEST) {
@@ -279,7 +316,7 @@
     busy = true; t0 = Date.now(); update();
     $('dlbin').hidden = $('dlcue').hidden = true; $('log').textContent = ''; bar('busy');
     status(SBT('En cours…', 'Working…'));
-    worker.postMessage({ disc: TEST ? location.origin + '/test/disc' : $('disc').files[0], target });
+    worker.postMessage({ disc: TEST ? location.origin + '/test/disc' : $('disc').files[0], target, options: opts() });
   };
 </script>
 </body>

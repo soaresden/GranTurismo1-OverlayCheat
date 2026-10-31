@@ -13,13 +13,14 @@ import struct
 from . import exes, pslz
 
 
-def check_exe(name, orig, patched, payload):
+def check_exe(name, orig, patched, payload, options=0):
     p = []
     e = exes.EXES[name]
     if len(orig) != len(patched):
         return ['%s: size changed' % name]
     xo, xp = pslz.Exe(orig), pslz.Exe(patched)
-    ext = payload.STUBS[name] + (payload.PIECES[e['piece']][1] if e['piece'] is not None else b'')
+    from .patcher import piece
+    ext = payload.STUBS[name] + (piece(e['piece'], options) if e['piece'] is not None else b'')
     start = xo.hdr + exes.LOADER_SIZE
     allowed = set(range(xo.hdr + 0x14, xo.hdr + 0x1C)) | set(range(start, start + len(ext)))
     diff = [i for i in range(len(orig)) if orig[i] != patched[i]]
