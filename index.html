@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gran Turismo · menu de triche</title>
+<script>
+  // Langue : choix mémorisé (sb.lang) sinon langue du navigateur ; les éléments data-en passent en anglais.
+  (function () {
+    var l = null; try { l = localStorage.getItem('sb.lang'); } catch (_) {}
+    if (l !== 'fr' && l !== 'en') l = /^fr/i.test(navigator.language || '') ? 'fr' : 'en';
+    window.SB_LANG = l; document.documentElement.lang = l;
+    window.SBT = function (fr, en) { return l === 'en' && en != null ? en : fr; };
+    document.addEventListener('DOMContentLoaded', function () {
+      if (l === 'en') document.querySelectorAll('[data-en]').forEach(function (e) { e.innerHTML = e.getAttribute('data-en'); });
+      var b = document.getElementById('lang');
+      b.textContent = l === 'en' ? '🇫🇷 FR' : '🇬🇧 EN';
+      b.onclick = function () { try { localStorage.setItem('sb.lang', l === 'en' ? 'fr' : 'en'); } catch (_) {} location.reload(); };
+    });
+  })();
+</script>
+<meta name="description" content="Ajoute un menu de triche à Gran Turismo (PlayStation, Europe multi) dans ton navigateur : SELECT pour figer le chrono des permis et changer l'argent. Ton .chd ou .bin, rien n'est envoyé.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Saira+Extra+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060b18; --panel: rgba(9, 16, 36, .86); --line: #1f2c4f; --text: #eef2fb; --muted: #9ba7c4;
+    --blue: #2f6fe0; --blue-dim: #24467f; --white: #e7ebf4; --ok: #8fdc8a; --err: #ff6b5a; --code: #0b1226;
+    --stripe: linear-gradient(90deg, #0f2f7a, #1d4fb8 70%, #2a5fcf); --cheat: #6fd3ff;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; color: var(--text); font: 500 17px/1.5 "Barlow Condensed", "Arial Narrow", sans-serif;
+         background:
+           radial-gradient(1100px 560px at 70% -10%, rgba(47, 111, 224, .32), transparent 62%),
+           radial-gradient(800px 480px at 0% 40%, rgba(29, 79, 184, .16), transparent 60%),
+           var(--bg);
+         min-height: 100vh; }
+  a { color: #8fb4ff; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 16px 64px; }
+  nav { padding: 14px 0; font: 700 15px/1 "Barlow Condensed"; text-transform: uppercase; letter-spacing: .08em;
+        display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  nav a { color: var(--muted); text-decoration: none; }
+  nav a:hover { color: var(--white); }
+  #lang { font: 700 14px "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: .06em; color: var(--text);
+          background: #0d1733; border: 1px solid #33467a; padding: 6px 12px; cursor: pointer; min-height: 36px; }
+  #lang:hover { border-color: var(--white); }
+
+  /* hero: the cheat menu over the GT mode map, the game's blue band at the top */
+  .hero { position: relative; border: 1px solid var(--line); overflow: hidden; margin-bottom: 22px; background: #0a1d4f;
+          padding-top: clamp(40px, 6vw, 54px); }
+  .hero img { display: block; width: 100%; height: clamp(220px, 46vw, 430px); object-fit: cover; object-position: 50% 0%;
+              image-rendering: pixelated; }
+  .hero::before { content: "GRAN TURISMO"; position: absolute; left: 0; right: 0; top: 0; z-index: 1; padding: 10px 22px;
+                  font: italic 800 clamp(20px, 4vw, 34px)/1 "Saira Extra Condensed"; letter-spacing: .08em; color: #fff;
+                  background: linear-gradient(120deg, rgba(10,36,99,.92), rgba(29,79,184,.86) 60%, rgba(10,29,79,.0)); }
+  .hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 90px rgba(0, 0, 0, .55);
+                 background: linear-gradient(0deg, rgba(0,0,0,.75), rgba(0,0,0,0) 45%); }
+  .title { position: absolute; left: 0; right: 0; bottom: 18px; z-index: 1; padding: 0 22px; }
+  .title h1 { margin: 0; font: 800 clamp(30px, 6.2vw, 60px)/1 "Saira Extra Condensed", sans-serif; text-transform: uppercase;
+              letter-spacing: .02em; text-shadow: 0 3px 0 #000, 0 0 24px rgba(0, 0, 0, .8); }
+  .title h1 small { display: block; font-size: .36em; letter-spacing: .22em; color: var(--white); margin-top: 6px; }
+  .lead { color: var(--muted); font-size: 18px; margin: 0 0 22px; }
+  .lead strong { color: var(--text); }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); margin: 0 0 16px; }
+  .panel > h2 { margin: 0; padding: 10px 16px; background: var(--stripe); border-bottom: 1px solid var(--line);
+                font: 700 20px/1.2 "Saira Extra Condensed"; text-transform: uppercase; letter-spacing: .08em;
+                display: flex; align-items: center; gap: 12px; }
+  .panel > h2 b { color: #0a1d4f; background: var(--white); font-size: 15px; padding: 1px 8px; letter-spacing: 0; }
+  .body { padding: 16px; }
+  label { display: block; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; margin: 0 0 6px; }
+  .hint { color: var(--muted); text-transform: none; letter-spacing: 0; font-weight: 500; font-size: 15px; }
+  input[type=file] { width: 100%; font: 600 16px "Barlow Condensed", sans-serif; color: var(--text);
+         background: #000; border: 1px solid var(--line); border-left: 3px solid var(--blue-dim); padding: 9px 10px; }
+  input[type=file]::file-selector-button { font: 700 14px "Barlow Condensed"; text-transform: uppercase; letter-spacing: .06em;
+         background: var(--white); color: #0a1d4f; border: 0; padding: 5px 10px; margin-right: 10px; cursor: pointer; }
+  .tip { margin: 10px 0 0; padding: 8px 10px; border-left: 3px solid var(--white); background: rgba(231, 235, 244, .07); font-size: 15px; }
+  .tip b { color: var(--white); }
+
+  .go { display: inline-flex; align-items: center; gap: 12px; font: 800 24px/1 "Saira Extra Condensed"; text-transform: uppercase;
+        letter-spacing: .08em; color: #0a1d4f; background: var(--white); border: 1px solid var(--white);
+        padding: 14px 26px; cursor: pointer; }
+  .go:hover:not(:disabled) { background: #fff; box-shadow: 0 0 0 3px var(--blue); }
+  .go:disabled { opacity: .45; cursor: default; }
+  #log { background: var(--code); border: 1px solid var(--line); padding: 10px 12px; margin-top: 14px; max-height: 220px; overflow: auto;
+         font: 13px/1.45 ui-monospace, Consolas, monospace; color: #c3cde6; white-space: pre-wrap; }
+  #log:empty { display: none; }
+  .bar { margin-top: 12px; height: 12px; background: #000; border: 1px solid var(--line); position: relative; overflow: hidden; }
+  .bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--stripe); }
+  .bar.busy i { width: 30%; animation: busy 1.4s ease-in-out infinite; }
+  @keyframes busy { 0% { left: -30%; } 100% { left: 100%; } }
+  .status { margin-top: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  .status.ok { color: var(--ok); } .status.err { color: var(--err); }
+  .downloads { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .download { display: inline-block; font: 800 20px "Saira Extra Condensed"; text-transform: uppercase; letter-spacing: .08em;
+              color: #0a1d4f; background: var(--white); padding: 10px 18px; text-decoration: none; border: 0; cursor: pointer; }
+
+  /* the menu as the game draws it: 5x7 letters, dark box */
+  .menu { display: inline-block; font: 15px/1.35 ui-monospace, Consolas, monospace; background: rgba(0, 0, 0, .7);
+          border: 1px solid #222; padding: 8px 12px; color: #fff; margin: 4px 0 12px; }
+  .menu .t { color: var(--cheat); } .menu .s { color: #ff0; } .menu .d { color: #999; }
+  table { border-collapse: collapse; width: 100%; font-size: 16px; margin: 6px 0 12px; }
+  th, td { border: 1px solid var(--line); padding: 5px 9px; text-align: left; vertical-align: top; }
+  th { background: #0d1733; text-transform: uppercase; letter-spacing: .05em; font-size: 14px; }
+  td:first-child { white-space: nowrap; font-weight: 700; color: var(--white); }
+  .shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 12px; }
+  .shots figure { margin: 0; }
+  .shots img { display: block; width: 100%; border: 1px solid var(--line); image-rendering: pixelated; }
+  .shots figcaption { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  ol, ul { margin: 0; padding-left: 22px; } li { margin-bottom: 6px; }
+  code { background: #000; border: 1px solid var(--line); padding: 0 5px; font-size: .9em; }
+  footer { color: var(--muted); font-size: 15px; margin-top: 26px; border-top: 1px solid var(--line); padding-top: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav><a href="https://github.com/soaresden/GranTurismo1-OverlayCheat" data-en="‹ The project on GitHub">‹ Le projet sur GitHub</a><button id="lang" title="Français / English">🇬🇧 EN</button></nav>
+
+  <div class="hero">
+    <img src="romhacking/screenshots/0_menu_city_map.png" alt="Le menu de triche sur la carte du mode GT">
+    <div class="title"><h1><span data-en="Cheat menu">Menu de triche</span><small>Gran Turismo · PlayStation · PAL</small></h1></div>
+  </div>
+
+  <p class="lead" data-en="For the &lt;strong&gt;Europe multi-language&lt;/strong&gt; version of the game (PAL, &lt;strong&gt;SCES-00984&lt;/strong&gt;). Hold &lt;strong&gt;SELECT&lt;/strong&gt; (or press &lt;strong&gt;L1 + R1 + L2 + R2&lt;/strong&gt;) and a small menu appears over the game: &lt;strong&gt;freeze the licence test timer&lt;/strong&gt; and &lt;strong&gt;change your credits&lt;/strong&gt; live. This page adds it to &lt;strong&gt;your&lt;/strong&gt; disc image (&lt;code&gt;.chd&lt;/code&gt; or &lt;code&gt;.bin&lt;/code&gt;), &lt;strong&gt;in your browser&lt;/strong&gt;: nothing is sent over the internet, and no game file is provided here.">Pour la version <strong>Europe multi-langues</strong> du jeu (PAL, <strong>SCES-00984</strong>). Maintiens <strong>SELECT</strong> (ou appuie <strong>L1 + R1 + L2 + R2</strong>) et un petit menu apparaît par-dessus le jeu : <strong>figer le chrono des permis</strong> et <strong>changer tes crédits</strong> en direct. Cette page l'ajoute à <strong>ton</strong> image disque (<code>.chd</code> ou <code>.bin</code>), <strong>dans ton navigateur</strong> : rien n'est envoyé sur internet, et aucun fichier du jeu n'est fourni ici.</p>
+
+  <section class="panel">
+    <h2><b>01</b> <span data-en="Your disc">Ton disque</span></h2>
+    <div class="body">
+      <label for="disc" data-en="Game disc image &lt;span class=&quot;hint&quot;&gt;· Gran Turismo Europe multi (SCES-00984), &lt;code&gt;.chd&lt;/code&gt; or &lt;code&gt;.bin&lt;/code&gt;&lt;/span&gt;">Image disque du jeu <span class="hint">· Gran Turismo Europe multi (SCES-00984), <code>.chd</code> ou <code>.bin</code></span></label>
+      <input type="file" id="disc" accept=".chd,.bin">
+      <p class="tip" data-en="&lt;b&gt;A .cue + .bin?&lt;/b&gt; Choose the &lt;code&gt;.bin&lt;/code&gt;. &lt;b&gt;A disc already modded&lt;/b&gt; in other files (the &lt;a href=&quot;https://github.com/soaresden/MazdaMx5-nd-rf-ingames&quot;&gt;MX-5 RF&lt;/a&gt;, cars of the &lt;a href=&quot;https://github.com/soaresden/Assetto-to-GT1-2-Converter&quot;&gt;converter&lt;/a&gt;…) works too: only the three executables change, and each one is checked first."><b>Un .cue + .bin ?</b> Choisis le <code>.bin</code>. <b>Un disque déjà modifié</b> dans d'autres fichiers (la <a href="https://github.com/soaresden/MazdaMx5-nd-rf-ingames">MX-5 RF</a>, des voitures du <a href="https://github.com/soaresden/Assetto-to-GT1-2-Converter">convertisseur</a>…) marche aussi : seuls les trois exécutables changent, et chacun est vérifié avant.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2><b>02</b> <span data-en="Add the cheat">Ajouter la triche</span></h2>
+    <div class="body">
+      <button id="go" class="go" disabled data-en="Loading…">Chargement…</button>
+      <p class="hint" style="margin:10px 0 0" data-en="A few minutes: your browser does all the work. The new disc image (~690 MB) is written as it is made: in Chrome and Edge you choose where to save it first; elsewhere it is kept in the site's storage until you download it. Leave the tab open in the meantime. Your own image is not changed.">Quelques minutes : c'est ton navigateur qui fait tout le travail. La nouvelle image disque (~690 Mo) est écrite au fur et à mesure : dans Chrome et Edge tu choisis d'abord où l'enregistrer ; ailleurs elle est gardée dans le stockage du site jusqu'au téléchargement. Laisse l'onglet ouvert pendant ce temps. Ton image d'origine n'est pas modifiée.</p>
+      <div class="bar" id="bar" hidden><i></i></div>
+      <div id="log"></div>
+      <div id="status" class="status"></div>
+      <div class="downloads">
+        <a id="dlbin" class="download" hidden data-en="Download the .bin">Télécharger le .bin</a>
+        <button id="dlcue" class="download" type="button" hidden data-en="Save the .cue">Enregistrer le .cue</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2><b>03</b> <span data-en="Play">Jouer</span></h2>
+    <div class="body">
+      <ol>
+        <li data-en="Put the &lt;code&gt;.bin&lt;/code&gt; and the &lt;code&gt;.cue&lt;/code&gt; &lt;strong&gt;in the same folder&lt;/strong&gt; and open the &lt;code&gt;.cue&lt;/code&gt; in your emulator (DuckStation, RetroArch, Batocera…).">Mets le <code>.bin</code> et le <code>.cue</code> <strong>dans le même dossier</strong> et ouvre le <code>.cue</code> dans ton émulateur (DuckStation, RetroArch, Batocera…).</li>
+        <li data-en="Open the &lt;strong&gt;Gran Turismo&lt;/strong&gt; mode once: the menu is there from then on (map, dealers, races, licences), until you switch off.">Ouvre une fois le mode <strong>Gran Turismo</strong> : le menu est là à partir de ce moment (carte, concessionnaires, courses, permis), jusqu'à l'extinction.</li>
+        <li data-en="&lt;strong&gt;Hold SELECT&lt;/strong&gt;: the menu appears after a short moment, and goes away on release. &lt;strong&gt;Or L1 + R1 + L2 + R2&lt;/strong&gt; together: it stays open, &lt;strong&gt;START&lt;/strong&gt; closes it (in RetroArch / Batocera, where SELECT is the hotkey button)."><strong>Maintiens SELECT</strong> : le menu apparaît après un court instant, et disparaît quand tu relâches. <strong>Ou L1 + R1 + L2 + R2</strong> ensemble : il reste ouvert, <strong>START</strong> le referme (dans RetroArch / Batocera, où SELECT est la touche « hotkey »).</li>
+      </ol>
+      <div class="menu"><span class="t">GT1 CHEAT</span><br><span class="s">&gt;FREEZE TIMER ON</span><br>&nbsp;MONEY 99,999,999<br><span class="d">&nbsp;STEP +1,000</span></div>
+      <table>
+        <tr><th data-en="Button">Touche</th><th>FREEZE TIMER</th><th>MONEY</th></tr>
+        <tr><td>↑ / ↓</td><td data-en="change line">change de ligne</td><td data-en="change line">change de ligne</td></tr>
+        <tr><td>← / →</td><td>ON / OFF</td><td data-en="− / + the step (held: repeats)">− / + le pas (maintenu : répétition)</td></tr>
+        <tr><td>✕ / ○</td><td>ON / OFF</td><td></td></tr>
+        <tr><td>R1 / L1</td><td></td><td data-en="step × 10 / ÷ 10">pas × 10 / ÷ 10</td></tr>
+        <tr><td>△ / □</td><td></td><td data-en="99,999,999 / 0">99 999 999 / 0</td></tr>
+      </table>
+      <p class="hint" data-en="FREEZE TIMER ON: in a licence test the clock stops; turned on before the start, it stops at 0:00.040. Stop in the target zone and the gold is yours. A short tap of SELECT is still given to the game.">FREEZE TIMER ON : dans un permis, le chrono s'arrête ; activé avant le départ, il s'arrête à 0:00.040. Arrête-toi dans la zone et l'or est à toi. Un appui bref sur SELECT reste transmis au jeu.</p>
+      <div class="shots">
+        <figure><img src="romhacking/screenshots/1_menu_licence_list.png" alt="" loading="lazy"><figcaption data-en="On the licence list">Sur la liste des permis</figcaption></figure>
+        <figure><img src="romhacking/screenshots/2_menu_licence_test.png" alt="" loading="lazy"><figcaption data-en="During licence B-1">Pendant le permis B-1</figcaption></figure>
+        <figure><img src="romhacking/screenshots/3_licence_timer_frozen.png" alt="" loading="lazy"><figcaption data-en="The clock frozen at 0:00.040">Le chrono figé à 0:00.040</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2><b>+</b> <span data-en="Other ways">Autres façons</span></h2>
+    <div class="body"><ul>
+      <li data-en="&lt;strong&gt;Patch&lt;/strong&gt; &lt;code&gt;.ppf&lt;/code&gt; or &lt;code&gt;.xdelta&lt;/code&gt; for the original &lt;code&gt;.bin&lt;/code&gt;: in the &lt;a href=&quot;https://github.com/soaresden/GranTurismo1-OverlayCheat/releases/latest&quot;&gt;latest release&lt;/a&gt;."><strong>Patch</strong> <code>.ppf</code> ou <code>.xdelta</code> pour le <code>.bin</code> d'origine : dans la <a href="https://github.com/soaresden/GranTurismo1-OverlayCheat/releases/latest">dernière version</a>.</li>
+      <li data-en="&lt;strong&gt;Python script&lt;/strong&gt; (much faster): &lt;code&gt;python patch_disc.py &amp;quot;Gran Turismo.chd&amp;quot;&lt;/code&gt;, see the &lt;a href=&quot;https://github.com/soaresden/GranTurismo1-OverlayCheat/blob/main/README.en.md&quot;&gt;README&lt;/a&gt;."><strong>Script Python</strong> (bien plus rapide) : <code>python patch_disc.py "Gran Turismo.chd"</code>, voir le <a href="https://github.com/soaresden/GranTurismo1-OverlayCheat#readme">README</a>.</li>
+      <li data-en="Gran Turismo 2: &lt;a href=&quot;https://soaresden.github.io/GranTurismo2-OverlayCheat/&quot;&gt;its own cheat page&lt;/a&gt;.">Gran Turismo 2 : <a href="https://soaresden.github.io/GranTurismo2-OverlayCheat/">sa propre page de triche</a>.</li>
+    </ul></div>
+  </section>
+
+  <footer data-en="Sources, addresses and notes: &lt;a href=&quot;https://github.com/soaresden/GranTurismo1-OverlayCheat&quot;&gt;github.com/soaresden/GranTurismo1-OverlayCheat&lt;/a&gt;. Tested in PCSX-Redux (Sony BIOS) and RetroArch (Beetle PSX).&lt;br&gt;Thanks to &lt;a href=&quot;https://github.com/pez2k/gt2tools&quot;&gt;pez2k&lt;/a&gt; (Gran Turismo file formats), MAME (CHD format), &lt;a href=&quot;https://pyodide.org&quot;&gt;Pyodide&lt;/a&gt;.&lt;br&gt;Gran Turismo is a trademark of Sony Interactive Entertainment; fan project, not affiliated with Sony or Polyphony Digital.">Sources, adresses et notes : <a href="https://github.com/soaresden/GranTurismo1-OverlayCheat">github.com/soaresden/GranTurismo1-OverlayCheat</a>. Essayé dans PCSX-Redux (BIOS Sony) et RetroArch (Beetle PSX).<br>
+    Merci à <a href="https://github.com/pez2k/gt2tools">pez2k</a> (formats des fichiers de Gran Turismo), MAME (format CHD), <a href="https://pyodide.org">Pyodide</a>.<br>
+    Gran Turismo est une marque de Sony Interactive Entertainment ; projet de fan, sans lien avec Sony ni Polyphony Digital.</footer>
+</div>
+<script>
+  const $ = (id) => document.getElementById(id);
+  // development only: ?test reads the disc image from tools/serve_test.py (/test/disc)
+  const TEST = new URLSearchParams(location.search).has('test');
+  const log = (t) => { $('log').textContent += t + '\n'; $('log').scrollTop = 1e9; };
+  const status = (t, cls) => { $('status').textContent = t; $('status').className = 'status ' + (cls || ''); };
+  const bar = (frac) => {
+    const b = $('bar'); b.hidden = frac == null;
+    b.classList.toggle('busy', frac === 'busy');
+    b.firstChild.style.width = typeof frac === 'number' ? (100 * frac).toFixed(1) + '%' : '';
+  };
+  let ready = false, busy = false, target = null, binName = '', binUrl = null, cueUrl = null, t0 = 0;
+  const worker = new Worker('web/worker.js?lang=' + SB_LANG);
+  const update = () => {
+    $('go').disabled = busy || !(ready && (TEST || $('disc').files.length));
+    $('go').textContent = !ready ? SBT('Chargement de Python…', 'Loading Python…')
+                        : busy ? SBT('En cours…', 'Working…') : SBT('Ajouter la triche', 'Add the cheat');
+  };
+  $('disc').onchange = update;
+  const cueText = (name) => `FILE "${name}" BINARY\r\n  TRACK 01 MODE2/2352\r\n    INDEX 01 00:00:00\r\n`;
+  const opfsFile = async (name) => (await (await navigator.storage.getDirectory()).getFileHandle(name)).getFile();
+  const elapsed = () => Math.round((Date.now() - t0) / 1000);
+
+  worker.onmessage = async (ev) => {
+    const m = ev.data;
+    if (m.type === 'log') log(m.text);
+    if (m.type === 'ready') { ready = true; update(); log(SBT('Prêt.', 'Ready.')); }
+    if (m.type === 'progress') {
+      bar(m.done / m.total);
+      status(SBT(`Image disque : ${Math.floor(100 * m.done / m.total)} % · ${elapsed()} s`,
+                 `Disc image: ${Math.floor(100 * m.done / m.total)}% · ${elapsed()} s`));
+    }
+    if (m.type === 'error') { busy = false; bar(null); status(SBT('Erreur : ', 'Error: ') + m.text, 'err'); update(); }
+    if (m.type === 'done') {
+      busy = false; bar(1);
+      const mb = Math.round(m.size / 1048576);
+      if (m.kind === 'file') {
+        binName = m.saved;
+        status(SBT(`Terminé en ${m.seconds} s : ${binName} enregistré (${mb} Mo). Enregistre maintenant le .cue à côté.`,
+                   `Done in ${m.seconds} s: ${binName} saved (${mb} MB). Now save the .cue next to it.`), 'ok');
+      } else {
+        try {
+          binUrl = URL.createObjectURL(m.kind === 'opfs' ? await opfsFile(m.opfs) : m.blob);
+        } catch (e) { status(SBT('Erreur : ', 'Error: ') + e, 'err'); update(); return; }
+        const a = $('dlbin');
+        a.href = binUrl; a.download = binName; a.hidden = false;
+        status(SBT(`Terminé en ${m.seconds} s. Télécharge les deux fichiers (${mb} Mo et 1 Ko).`,
+                   `Done in ${m.seconds} s. Download both files (${mb} MB and 1 KB).`), 'ok');
+      }
+      $('dlcue').hidden = false;
+      update();
+    }
+  };
+  $('dlcue').onclick = async () => {
+    const name = binName.replace(/\.bin$/i, '') + '.cue';
+    if (target && window.showSaveFilePicker) {
+      try {
+        const h = await showSaveFilePicker({ suggestedName: name, startIn: target,
+                                             types: [{ description: 'CUE', accept: { 'application/octet-stream': ['.cue'] } }] });
+        const w = await h.createWritable();
+        await w.write(cueText(binName));
+        await w.close();
+        status(SBT(`${h.name} enregistré : ouvre-le dans ton émulateur.`, `${h.name} saved: open it in your emulator.`), 'ok');
+        return;
+      } catch (e) { if (e.name === 'AbortError') return; }
+    }
+    if (cueUrl) URL.revokeObjectURL(cueUrl);
+    cueUrl = URL.createObjectURL(new Blob([cueText(binName)], { type: 'application/octet-stream' }));
+    const a = document.createElement('a');
+    a.href = cueUrl; a.download = name; document.body.append(a); a.click(); a.remove();
+  };
+
+  $('go').onclick = async () => {
+    const src = TEST ? 'Gran Turismo.chd' : $('disc').files[0].name;
+    binName = src.replace(/\.(chd|bin)$/i, '') + ' [Cheat].bin';
+    target = null;
+    // Chrome, Edge: the .bin goes straight to the file chosen now (the click allows the dialog)
+    if (window.showSaveFilePicker && !TEST) {
+      try {
+        target = await showSaveFilePicker({ suggestedName: binName,
+                                            types: [{ description: SBT('Image disque PlayStation', 'PlayStation disc image'),
+                                                      accept: { 'application/octet-stream': ['.bin'] } }] });
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+        target = null;
+      }
+    }
+    if (binUrl) { URL.revokeObjectURL(binUrl); binUrl = null; }
+    busy = true; t0 = Date.now(); update();
+    $('dlbin').hidden = $('dlcue').hidden = true; $('log').textContent = ''; bar('busy');
+    status(SBT('En cours…', 'Working…'));
+    worker.postMessage({ disc: TEST ? location.origin + '/test/disc' : $('disc').files[0], target });
+  };
+</script>
+</body>
+</html>

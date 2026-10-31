@@ -2,6 +2,9 @@
 
 🇫🇷 [Version française](README.md)
 
+**▶ [Add the cheat to your disc, in your browser](https://soaresden.github.io/GranTurismo1-OverlayCheat/)**: choose your `.chd` or `.bin`, the
+page gives you back the disc image with the cheat menu (nothing is sent over the internet).
+
 A patch for **Gran Turismo** (PlayStation, European version **SCES-00984**): hold **SELECT**
 (or press **L1 + R1 + L2 + R2** together) and a small menu shows up over the game, with two
 options:

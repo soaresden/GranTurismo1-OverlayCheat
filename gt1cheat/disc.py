@@ -48,11 +48,12 @@ def make_sector(original, data):
 
 
 class _Bin:
-    """Raw image (first data track of a .bin, 2352-byte sectors)."""
+    """Raw image (first data track of a .bin, 2352-byte sectors): a path or a file object."""
 
     def __init__(self, path):
-        self.f = open(path, 'rb')
-        self.frames = os.path.getsize(path) // SECTOR
+        self.f = open(path, 'rb') if isinstance(path, str) else path
+        self.f.seek(0, 2)
+        self.frames = self.f.tell() // SECTOR
 
     def sector(self, lba):
         self.f.seek(lba * SECTOR)
@@ -70,6 +71,15 @@ def bin_of_cue(cue):
 
 class Disc:
     def __init__(self, path):
+        """path: a .chd, .cue or .bin, or a file object of a .chd or a .bin (the browser page)."""
+        if not isinstance(path, str):
+            path.seek(0)
+            magic = path.read(8)
+            path.seek(0)
+            self.c = chd.Chd(path) if magic == b'MComprHD' else _Bin(path)
+            self.path = getattr(path, 'name', 'disc')
+            self._open()
+            return
         low = path.lower()
         if low.endswith('.chd'):
             self.c = chd.Chd(path)
@@ -78,10 +88,13 @@ class Disc:
                 path = bin_of_cue(path)
             self.c = _Bin(path)
         self.path = path
+        self._open()
+
+    def _open(self):
         self.files = {}
         pvd = self.user_data(16)
         if pvd[1:6] != b'CD001':
-            raise ValueError('%s: no ISO 9660 file system' % path)
+            raise ValueError('%s: no ISO 9660 file system' % self.path)
         root = pvd[156:190]
         self._walk(struct.unpack_from('<I', root, 2)[0], struct.unpack_from('<I', root, 10)[0], '')
 
@@ -123,9 +136,8 @@ class Disc:
         lba, size = self.files[name][:2]
         return self._read(lba, (size + 2047) // 2048)[:size]
 
-    def write_bin(self, path, replace, progress=None):
-        """Write the .bin (raw 2352-byte sectors) and its .cue; replace = {file name: new bytes},
-        each of the size of the file it replaces."""
+    def _sectors(self, replace):
+        """{lba: new 2048 bytes} for replace = {file name: new bytes}."""
         sectors = {}
         for name, data in replace.items():
             lba, size = self.files[name][:2]
@@ -133,18 +145,32 @@ class Disc:
                 raise ValueError('%s: %d bytes, the file has %d' % (name, len(data), size))
             for i in range((len(data) + 2047) // 2048):
                 sectors[lba + i] = data[i * 2048:(i + 1) * 2048]
+        return sectors
+
+    def bin_chunks(self, replace, chunk=2048, progress=None):
+        """The .bin (raw 2352-byte sectors), `chunk` sectors at a time (bytes): for the browser
+        page, which writes each piece where it goes, and for write_bin."""
+        sectors = self._sectors(replace)
         total = self.frames
+        for start in range(0, total, chunk):
+            out = []
+            for lba in range(start, min(total, start + chunk)):
+                raw = self.c.sector(lba)
+                if lba in sectors:
+                    raw = make_sector(raw, sectors[lba])
+                out.append(raw)
+            if progress:
+                progress(min(total, start + chunk), total)
+            yield b''.join(out)
+
+    def write_bin(self, path, replace, progress=None):
+        """Write the .bin and its .cue (see bin_chunks)."""
         # written under a temporary name and renamed once complete: a half-written image never
         # looks like a finished one
         part = path + '.part'
         with open(part, 'wb') as f:
-            for lba in range(total):
-                raw = self.c.sector(lba)
-                if lba in sectors:
-                    raw = make_sector(raw, sectors[lba])
-                f.write(raw)
-                if progress and lba % 10000 == 0:
-                    progress(lba, total)
+            for piece in self.bin_chunks(replace, progress=progress):
+                f.write(piece)
         os.replace(part, path)
         base = os.path.basename(path)
         with open(os.path.splitext(path)[0] + '.cue', 'w', newline='\r\n') as f:
